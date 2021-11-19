@@ -1,7 +1,7 @@
-import { spawnSync } from "child_process";
-import { RoomUpgradeTicket, Ticket } from "ticket";
-import { runUpgradeTicket } from "upgrade-ticket";
 import { ErrorMapper } from "utils/ErrorMapper";
+import { System } from './system';
+import { Ticket } from './tickets/base';
+import { RoomUpgradeTicketHelper, RoomUpgradeTicket } from './tickets/upgrade';
 
 declare global {
   /*
@@ -35,12 +35,6 @@ declare global {
   }
 }
 
-class System {
-  static getPid(): number {
-    Memory.pid += 1;
-    return Memory.pid;
-  }
-}
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -64,15 +58,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (room.controller && room.controller.my) { // if room has controller and is owned by me
       const ticketExists = Memory.tickets.some(tickets => tickets.type = 'upgrade');
       if (!ticketExists) {
-        Memory.tickets.push({
-          type: 'upgrade',
-          pid: System.getPid(),
-          targetControllerLevel: room.controller.level + 1,
-          requestor: room.name,
-          assignees: [],
-          maxAssignees: 3,
-          requirements: [WORK, CARRY, MOVE],
-        } as RoomUpgradeTicket);
+        Memory.tickets.push(RoomUpgradeTicketHelper.create(room));
       }
     }
 
@@ -92,7 +78,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (creep.memory.ticket) {
       const ticket = Memory.tickets.find(ticket => ticket.pid == creep.memory.ticket);
       if (ticket && ticket.type == 'upgrade') {
-        runUpgradeTicket(creep);
+        RoomUpgradeTicketHelper.run(creep);
       }
     }
   }

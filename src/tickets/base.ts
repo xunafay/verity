@@ -8,8 +8,3 @@ export interface Ticket {
     assignees: string[],
     requirements: BodyPartConstant[] // body parts required for the ticket
 }
-
-export interface RoomUpgradeTicket extends Ticket {
-    type: 'upgrade',
-    targetControllerLevel: number,
-}
