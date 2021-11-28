@@ -48,10 +48,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
   if (Memory.tickets == null) { Memory.tickets = []; }
 
+  // find tasks in room
   if (Object.keys(Game.creeps).length < 3) {
     Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], System.getPid().toString())
   }
 
+  // create controller upgrade ticket
   for (const name in Game.rooms) {
     const room = Game.rooms[name];
 
@@ -62,6 +64,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     }
 
+    // assign tickets
     room.find(FIND_MY_CREEPS).forEach(creep => {
       if (!creep.memory.ticket) {
         const ticket = Memory.tickets.find(ticket => ticket.assignees.length == 0);
@@ -81,18 +84,20 @@ export const loop = ErrorMapper.wrapLoop(() => {
         RoomUpgradeTicketHelper.run(creep);
       }
     }
+
+
   }
 
-  // find tasks in room
-    // save them in room memory
-      // if task is found, refer to separate file
-        // spawn creeps
-        // keep controller alive
-        // build roads
-        // build extensions
-        // build towers
-        // build containers
-        // build walls
+
+  // save them in room memory
+    // if task is found, refer to separate file
+      // spawn creeps
+      // keep controller alive
+      // build roads
+      // build extensions
+      // build towers
+      // build containers
+      // build walls
   // delegate tasks
   // run creeps
 
