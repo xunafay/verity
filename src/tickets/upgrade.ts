@@ -17,7 +17,8 @@ export class RoomUpgradeTicketHelper {
         }
 
         const targetLevel = room.controller.level + 1;
-        return {
+
+        let ticket: RoomUpgradeTicket = {
             assignees: [],
             maxAssignees: targetLevel,
             pid: System.getPid(),
@@ -26,6 +27,10 @@ export class RoomUpgradeTicketHelper {
             targetControllerLevel: targetLevel,
             type: 'upgrade'
         };
+
+        room.memory.tickets.push(ticket);
+
+        return ticket
     }
 
     static run(creep: Creep) {

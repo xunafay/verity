@@ -25,6 +25,7 @@ declare global {
   }
 
   interface RoomMemory {
+    tickets: Ticket[];
   }
 
   // Syntax for adding proprties to `global` (ex "global.log")
@@ -60,37 +61,36 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (room.controller && room.controller.my) { // if room has controller and is owned by me
       const ticketExists = Memory.tickets.some(tickets => tickets.type = 'upgrade');
       if (!ticketExists) {
-        Memory.tickets.push(RoomUpgradeTicketHelper.create(room));
+        RoomUpgradeTicketHelper.create(room);
       }
     }
 
     // assign tickets
-    room.find(FIND_MY_CREEPS).forEach(creep => {
+    let creeps = room.find(FIND_MY_CREEPS);
+    creeps.forEach(creep => {
       if (!creep.memory.ticket) {
-        const ticket = Memory.tickets.find(ticket => ticket.assignees.length == 0);
+        const ticket = room.memory.tickets.find(ticket => ticket.assignees.length == 0); // TODO: create possibility for multiple assignees
         if (ticket) {
           ticket.assignees.push(creep.name);
           creep.memory.ticket = ticket.pid;
         }
       }
     });
-  }
 
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (creep.memory.ticket) {
-      const ticket = Memory.tickets.find(ticket => ticket.pid == creep.memory.ticket);
-      if (ticket && ticket.type == 'upgrade') {
-        RoomUpgradeTicketHelper.run(creep);
+    //
+    for (const creep of creeps) {
+      if (creep.memory.ticket) {
+        const ticket = room.memory.tickets.find(ticket => ticket.pid == creep.memory.ticket);
+        if (ticket && ticket.type == 'upgrade') {
+          RoomUpgradeTicketHelper.run(creep);
+        }
       }
     }
-
-
   }
 
 
-  // save them in room memory
-    // if task is found, refer to separate file
+
+  // if task is found, refer to separate file
       // spawn creeps
       // keep controller alive
       // build roads
