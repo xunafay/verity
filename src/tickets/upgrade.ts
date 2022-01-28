@@ -13,7 +13,7 @@ export class RoomUpgradeTicketHelper {
         }
 
         if (!room.controller.my) {
-            throw new Error("Trying to create upgrade ticket for room controller by other player");
+            throw new Error("Trying to create upgrade ticket for room controller of other player");
         }
 
         const targetLevel = room.controller.level + 1;
@@ -57,12 +57,20 @@ export class RoomUpgradeTicketHelper {
         // do task
         if (creep.memory.work == 'harvesting') {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source)
+                creep.moveTo(source);
             }
         } else if (creep.memory.work == 'upgrading') {
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller)
+                creep.moveTo(creep.room.controller);
             }
         }
+    }
+
+    static isValid(ticket: RoomUpgradeTicket, room: Room): boolean {
+        if (!room.controller) {
+            return false;
+        }
+
+        return ticket.targetControllerLevel > room.controller.level;
     }
 }

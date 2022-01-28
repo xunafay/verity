@@ -1,5 +1,3 @@
-import { getPackedSettings } from "http2";
-import { find } from "lodash";
 import { System } from "../system";
 import { Ticket } from "./base";
 
@@ -35,6 +33,12 @@ export class RoomSpawnTicketHelper {
             throw new Error("Spawn dissapeared");
         }
 
-        spawns[0].spawnCreep(ticket.body, System.getPid().toString())
+        const code = spawns[0].spawnCreep(ticket.body, System.getPid().toString());
+
+        // delete ticket if success
+        if (code == OK) {
+            const index = room.memory.tickets.indexOf(ticket);
+            room.memory.tickets.splice(index, 1);
+        }
     }
 }
