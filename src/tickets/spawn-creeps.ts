@@ -28,5 +28,13 @@ export class RoomSpawnTicketHelper {
         return ticket
     }
 
-    static run(creep: Creep)
+    static run(room: Room, ticket: RoomSpawnTicket) {
+        let spawns = room.find(FIND_MY_SPAWNS)
+
+        if (spawns.length == 0) {
+            throw new Error("Spawn dissapeared");
+        }
+
+        spawns[0].spawnCreep(ticket.body, System.getPid().toString())
+    }
 }

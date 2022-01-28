@@ -1,3 +1,4 @@
+import { RoomSpawnTicket, RoomSpawnTicketHelper } from "tickets/spawn-creeps";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { System } from './system';
 import { Ticket } from './tickets/base';
@@ -85,6 +86,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
           RoomUpgradeTicketHelper.run(creep);
         }
       }
+    }
+    let spawn_ticket = room.memory.tickets.find(ticket => {
+      return ticket.type == 'spawnCreep'
+    }) as RoomSpawnTicket | undefined;
+    if (spawn_ticket != null) {
+      RoomSpawnTicketHelper.run(room, spawn_ticket)
     }
   }
 
