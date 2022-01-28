@@ -39,6 +39,10 @@ export class RoomUpgradeTicketHelper {
             return;
         }
 
+        if (creep.memory.work == null) {
+            creep.memory.work = 'harvesting'
+        }
+
         // search for energy sources in room
         const source = creep.room.find(FIND_SOURCES)[0];
         // TODO: get closest source instead of first one

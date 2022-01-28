@@ -59,8 +59,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const name in Game.rooms) {
     const room = Game.rooms[name];
 
+    if (room.memory.tickets == null) {
+      room.memory.tickets = []
+    }
+
     if (room.controller && room.controller.my) { // if room has controller and is owned by me
-      const ticketExists = Memory.tickets.some(tickets => tickets.type = 'upgrade');
+      const ticketExists = room.memory.tickets.some(tickets => tickets.type == 'upgrade');
       if (!ticketExists) {
         RoomUpgradeTicketHelper.create(room);
       }
@@ -70,7 +74,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     let creeps = room.find(FIND_MY_CREEPS);
     creeps.forEach(creep => {
       if (!creep.memory.ticket) {
-        const ticket = room.memory.tickets.find(ticket => ticket.assignees.length == 0); // TODO: create possibility for multiple assignees
+        const ticket = room.memory.tickets.find(ticket => ticket.assignees.length < ticket.maxAssignees);
         if (ticket) {
           ticket.assignees.push(creep.name);
           creep.memory.ticket = ticket.pid;
