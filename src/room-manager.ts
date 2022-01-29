@@ -45,7 +45,7 @@ export class RoomManager {
         }
 
         let spawn_ticket = this.room.memory.tickets.find(ticket => {
-            return ticket.type == 'spawnCreep'
+            return ticket.type == 'spawnCreeps'
         }) as RoomSpawnTicket | undefined;
 
         if (spawn_ticket != null) {
