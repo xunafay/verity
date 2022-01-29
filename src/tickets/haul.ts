@@ -44,12 +44,12 @@ export class HaulerTicketHelper {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(source);
             }
-        }
+        } else if (creep.memory.work == 'hauling') {
+            const target = Game.getObjectById(ticket.target) as Container;
 
-        const target = Game.getObjectById(ticket.target) as Container;
-
-        if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(target);
+            if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target);
+            }
         }
     }
 }
