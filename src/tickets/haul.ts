@@ -40,15 +40,20 @@ export class HaulerTicketHelper {
         }
 
         // do task
-        if (creep.memory.work == 'hauling') {
+        if (creep.memory.work == 'harvesting') {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(source);
             }
-        } else if (creep.memory.work == 'hauling') {
+        } else if (creep.memory.work == 'transferring') {
             const target = Game.getObjectById(ticket.target) as Container;
 
-            if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            const code = creep.transfer(target, RESOURCE_ENERGY);
+            if(code == ERR_NOT_IN_RANGE) {
                 creep.moveTo(target);
+            } else if (code == ERR_FULL) {
+                creep.room.memory.tickets.splice(creep.room.memory.tickets.indexOf(ticket), 1);
+                creep.memory.ticket = undefined;
+                // TODO: also unnasign other creeps from task
             }
         }
     }
