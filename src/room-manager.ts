@@ -3,7 +3,8 @@ import { RoomSpawnTicketHelper } from "tickets/spawn-creeps";
 import { BuildTicket } from "tickets/build";
 import { RoomUpgradeTicket, RoomUpgradeTicketHelper } from "tickets/upgrade";
 import { RoomSpawnTicket } from "tickets/spawn-creeps";
-import { HarvestTicket, HarvestTicketHelper } from "tickets/harvest";
+import { HaulerTicket, HaulerTicketHelper } from "tickets/haul";
+import { Logger } from "utils/logger";
 
 export class RoomManager {
     constructor(public room: Room) {
@@ -16,7 +17,7 @@ export class RoomManager {
         this.createSpawnTickets();
         this.createConstructionTickets();
         this.createUpgradeTickets();
-        this.createHarvestTickets();
+        this.createHaulingTickets();
     }
 
     assignTickets(): void {
@@ -24,6 +25,9 @@ export class RoomManager {
             if (!creep.memory.ticket) {
                 const ticket = this.room.memory.tickets.find(ticket => ticket.assignees.length < ticket.maxAssignees);
                 if (ticket) {
+                    // clear memory before assigning new ticket
+                    creep.memory = {} as CreepMemory;
+
                     ticket.assignees.push(creep.name);
                     creep.memory.ticket = ticket.pid;
                 }
@@ -39,10 +43,10 @@ export class RoomManager {
                     RoomUpgradeTicketHelper.run(creep);
                 } else if (ticket && ticket.type == 'build') {
                     BuildTicketHelper.run(ticket as BuildTicket, creep);
-                } else if (ticket && ticket.type == 'harvest') {
-                    HarvestTicketHelper.run(ticket as HarvestTicket, creep);
+                } else if (ticket && ticket.type == 'haul') {
+                    HaulerTicketHelper.run(ticket as HaulerTicket, creep);
                 } else {
-                    console.log(`creep(${creep.name}) had non existing ticket(${creep.memory.ticket})`);
+                    Logger.warning(`creep(${creep.name}) had non existing ticket(${creep.memory.ticket})`, 'TicketExecutor');
                     creep.memory.ticket = undefined;
                 }
             }
@@ -92,16 +96,16 @@ export class RoomManager {
         }
     }
 
-    private createHarvestTickets(): void {
+    private createHaulingTickets(): void {
         const structures = (this.room.find(FIND_MY_STRUCTURES)
             .filter(s => s.structureType == STRUCTURE_EXTENSION || s.structureType == STRUCTURE_SPAWN) as Array<StructureExtension | StructureSpawn>)
             .filter((s) => s.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
 
         for (const structure of structures) {
             const ticketExists = this.room.memory.tickets
-                .some(ticket => ticket.type == 'harvest' && (ticket as HarvestTicket).target == structure.id);
+                .some(ticket => ticket.type == 'haul' && (ticket as HaulerTicket).target == structure.id);
             if (!ticketExists) {
-                HarvestTicketHelper.create(this.room, structure.id, Math.max(1, Math.floor(structure.store.getFreeCapacity(RESOURCE_ENERGY) / 50)));
+                HaulerTicketHelper.create(this.room, structure.id, Math.max(1, Math.floor(structure.store.getFreeCapacity(RESOURCE_ENERGY) / 50)));
             }
         }
     }
@@ -111,13 +115,13 @@ export class RoomManager {
         for (const ticket of this.room.memory.tickets) {
             if (ticket.type == 'upgrade') {
                 if (!RoomUpgradeTicketHelper.isValid(ticket as RoomUpgradeTicket, this.room)) {
-                    console.log('[INFO] deleting invalid ticket: ' + ticket.pid);
+                    Logger.debug('deleting invalid/done upgrade ticket: ' + ticket.pid, 'TicketManager');
                     const index = this.room.memory.tickets.indexOf(ticket);
                     this.room.memory.tickets.splice(index, 1);
                 }
             } else if (ticket.type == 'build') {
                 if (Game.getObjectById((ticket as BuildTicket).id) == null) {
-                    console.log('[INFO] deleting invalid ticket: ' + ticket.pid);
+                    Logger.debug('[INFO] deleting invalid/done build ticket: ' + ticket.pid, 'TicketManager');
                     const index = this.room.memory.tickets.indexOf(ticket);
                     this.room.memory.tickets.splice(index, 1);
                 }

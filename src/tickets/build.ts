@@ -28,7 +28,7 @@ export class BuildTicketHelper {
         }
 
         // search for sources in room
-        const source = creep.room.find(FIND_SOURCES)[0];
+        const source = creep.room.find(FIND_SOURCES_ACTIVE)[0];
 
         // check if creep has to switch task
         if (creep.memory.work == 'harvesting' && creep.store.getFreeCapacity() == 0) {

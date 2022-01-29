@@ -1,3 +1,4 @@
+import { Logger } from "utils/logger";
 import { System } from "../system";
 import { Ticket } from "./base";
 
@@ -35,7 +36,7 @@ export class RoomUpgradeTicketHelper {
 
     static run(creep: Creep) {
         if (!creep.room.controller) {
-            console.log(`ERROR: creep(${creep.name}) tried upgrading controller in room without controller`);
+            Logger.error(`creep(${creep.name}) tried upgrading controller in room without controller`, 'UpgradeTicket');
             return;
         }
 
@@ -44,7 +45,7 @@ export class RoomUpgradeTicketHelper {
         }
 
         // search for energy sources in room
-        const source = creep.room.find(FIND_SOURCES)[0];
+        const source = creep.room.find(FIND_SOURCES_ACTIVE)[0];
         // TODO: get closest source instead of first one
 
         // check if creep has to switch task
