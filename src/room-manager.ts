@@ -3,6 +3,7 @@ import { RoomSpawnTicketHelper } from "tickets/spawn-creeps";
 import { BuildTicket } from "tickets/build";
 import { RoomUpgradeTicket, RoomUpgradeTicketHelper } from "tickets/upgrade";
 import { RoomSpawnTicket } from "tickets/spawn-creeps";
+import { HarvestTicket, HarvestTicketHelper } from "tickets/harvest";
 
 export class RoomManager {
     constructor(public room: Room) {
@@ -88,6 +89,18 @@ export class RoomManager {
         }
     }
 
+    private createHarvestTickets(): void {
+        const structures = (this.room.find(FIND_MY_STRUCTURES)
+            .filter(s => s.structureType == STRUCTURE_EXTENSION || s.structureType == STRUCTURE_SPAWN) as Array<StructureExtension | StructureSpawn>)
+            .filter((s) => s.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+
+        for (const structure of structures) {
+            const ticketExists = this.room.memory.tickets
+                .some(ticket => ticket.type == 'harvest' && (ticket as HarvestTicket).target == structure.id);
+            HarvestTicketHelper.create(this.room, structure.id, Math.max(1, Math.floor(structure.store.getFreeCapacity(RESOURCE_ENERGY) / 50)));
+        }
+    }
+
     cleanUpTickets(): void {
         // delete invalid upgrade tickets
         for (const ticket of this.room.memory.tickets) {
@@ -97,10 +110,13 @@ export class RoomManager {
                     const index = this.room.memory.tickets.indexOf(ticket);
                     this.room.memory.tickets.splice(index, 1);
                 }
+            } else if (ticket.type == 'build') {
+                if (Game.getObjectById((ticket as BuildTicket).id) == null) {
+                    console.log('[INFO] deleting invalid ticket: ' + ticket.pid);
+                    const index = this.room.memory.tickets.indexOf(ticket);
+                    this.room.memory.tickets.splice(index, 1);
+                }
             }
         }
-
-        // TODO: delete invalid build tickets
-
     }
 }
