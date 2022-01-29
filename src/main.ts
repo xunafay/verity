@@ -52,6 +52,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         roomManager.cleanUpTickets();
         roomManager.createTickets();
         roomManager.executeTickets();
+        roomManager.assignTickets();
     }
 
     System.cleanUpMemory();
