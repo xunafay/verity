@@ -16,6 +16,7 @@ export class RoomManager {
         this.createSpawnTickets();
         this.createConstructionTickets();
         this.createUpgradeTickets();
+        this.createHarvestTickets();
     }
 
     assignTickets(): void {
@@ -38,6 +39,8 @@ export class RoomManager {
                     RoomUpgradeTicketHelper.run(creep);
                 } else if (ticket && ticket.type == 'build') {
                     BuildTicketHelper.run(ticket as BuildTicket, creep);
+                } else if (ticket && ticket.type == 'harvest') {
+                    HarvestTicketHelper.run(ticket as HarvestTicket, creep);
                 } else {
                     console.log(`creep(${creep.name}) had non existing ticket(${creep.memory.ticket})`);
                     creep.memory.ticket = undefined;
@@ -97,7 +100,9 @@ export class RoomManager {
         for (const structure of structures) {
             const ticketExists = this.room.memory.tickets
                 .some(ticket => ticket.type == 'harvest' && (ticket as HarvestTicket).target == structure.id);
-            HarvestTicketHelper.create(this.room, structure.id, Math.max(1, Math.floor(structure.store.getFreeCapacity(RESOURCE_ENERGY) / 50)));
+            if (!ticketExists) {
+                HarvestTicketHelper.create(this.room, structure.id, Math.max(1, Math.floor(structure.store.getFreeCapacity(RESOURCE_ENERGY) / 50)));
+            }
         }
     }
 
