@@ -5,9 +5,13 @@ import { RoomUpgradeTicket, RoomUpgradeTicketHelper } from "tickets/upgrade";
 import { RoomSpawnTicket } from "tickets/spawn-creeps";
 import { HaulerTicket, HaulerTicketHelper } from "tickets/haul";
 import { Logger } from "utils/logger";
+import { TicketManager } from 'ticket-manager';
 
 export class RoomManager {
+    ticketManager: TicketManager;
+
     constructor(public room: Room) {
+        this.ticketManager = new TicketManager(this.room);
         if (this.room.memory.tickets == null) {
             this.room.memory.tickets = [];
         }
@@ -17,7 +21,7 @@ export class RoomManager {
         this.createSpawnTickets();
         this.createConstructionTickets();
         this.createUpgradeTickets();
-        this.createHaulingTickets();
+        // this.createHaulingTickets();
     }
 
     assignTickets(): void {
@@ -83,7 +87,7 @@ export class RoomManager {
 
         // create ticket for those constructionSites
         for (const site of constructionSites) {
-            BuildTicketHelper.create(this.room, site, 1)
+            BuildTicketHelper.create(this.room, site, 1, 0)
         }
     }
 

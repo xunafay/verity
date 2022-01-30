@@ -17,7 +17,8 @@ export class HaulerTicketHelper {
             requestor: room.name,
             requirements: [WORK, CARRY, MOVE],
             target: target,
-            type: 'hauler'
+            type: 'hauler',
+            priority: 0
         }
         room.memory.tickets.push(ticket);
         return ticket;
