@@ -27,7 +27,7 @@ export class RoomManager {
     assignTickets(): void {
         this.room.find(FIND_MY_CREEPS).forEach(creep => {
             if (!creep.memory.ticket) {
-                const ticket = this.room.memory.tickets.find(ticket => ticket.assignees.length < ticket.maxAssignees);
+                const ticket = this.ticketManager.sortTickets().find(ticket => ticket.assignees.length < ticket.maxAssignees);
                 if (ticket) {
                     // clear memory before assigning new ticket
                     creep.memory = {} as CreepMemory;

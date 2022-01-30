@@ -27,7 +27,7 @@ export class RoomUpgradeTicketHelper {
             requirements: [WORK, CARRY, MOVE],
             targetControllerLevel: targetLevel,
             type: 'upgrade',
-            priority: 10,
+            priority: 30,
         };
 
         room.memory.tickets.push(ticket);

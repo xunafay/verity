@@ -18,7 +18,7 @@ export class HaulerTicketHelper {
             requirements: [WORK, CARRY, MOVE],
             target: target,
             type: 'hauler',
-            priority: 0
+            priority: 50
         }
         room.memory.tickets.push(ticket);
         return ticket;

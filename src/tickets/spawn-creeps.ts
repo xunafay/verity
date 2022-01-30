@@ -19,7 +19,7 @@ export class RoomSpawnTicketHelper {
             requirements: [],
             type: "spawnCreeps",
             body: [WORK, CARRY, MOVE],
-            priority: 0,
+            priority: 40,
         }
 
         room.memory.tickets.push(ticket)
