@@ -14,10 +14,10 @@ export class RoomManager {
     }
 
     createTickets(): void {
+        this.createUpgradeTickets();
         this.createSpawnTickets();
         this.createConstructionTickets();
-        this.createUpgradeTickets();
-        this.createHaulingTickets();
+        // this.createHaulingTickets();
     }
 
     assignTickets(): void {
