@@ -16,6 +16,7 @@ export class HarvestTicketHelper {
             requirements: [WORK, CARRY, MOVE],
             target: target,
             type: 'harvester',
+            priority: 0
         }
         room.memory.tickets.push(ticket);
         return ticket;

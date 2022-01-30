@@ -7,15 +7,16 @@ export interface BuildTicket extends Ticket {
 }
 
 export class BuildTicketHelper {
-    static create(room: Room, construction: ConstructionSite, maxAssignees: number): BuildTicket {
+    static create(room: Room, construction: ConstructionSite, maxAssignees: number, priority: number): BuildTicket {
         let ticket: BuildTicket =  {
             id: construction.id,
             type: 'build',
             assignees: [],
-            maxAssignees: maxAssignees,
             pid: System.getPid(),
             requestor: room.name,
             requirements: [WORK, CARRY, MOVE],
+            maxAssignees,
+            priority,
         };
 
         room.memory.tickets.push(ticket);

@@ -46,7 +46,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     if (Memory.tickets == null) { Memory.tickets = []; }
     if (Memory.clear == true) {
-        Logger.info('Clearing memory', 'System');
+        Logger.notice('Clearing memory', 'System');
         Memory.clear = false;
         Memory.tickets = [];
         for (const room in Memory.rooms) {

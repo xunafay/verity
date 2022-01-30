@@ -7,4 +7,5 @@ export interface Ticket {
     maxAssignees: number, // max amount of creeps who can pick up this job
     assignees: string[],
     requirements: BodyPartConstant[] // body parts required for the ticket
+    priority: number;
 }
