@@ -11,7 +11,7 @@ export enum Level {
 
   export class Logger {
     static log(level: Level, message: string, actor: string) {
-      console.log(`t:${Game.time} [${level}] ${actor} - ${message}`);
+      console.log(`t:${Game.time} [${Level[level]}] ${actor} - ${message}`);
     }
 
     static debug(message: string, actor: string) {
