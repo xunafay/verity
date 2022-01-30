@@ -18,11 +18,12 @@ declare global {
         pid: number;
         log: any;
         tickets: Ticket[];
+        clear: boolean;
     }
 
     interface CreepMemory {
         ticket?: number;
-        work: string;
+        work?: string;
     }
 
     interface RoomMemory {
@@ -44,6 +45,19 @@ export const loop = ErrorMapper.wrapLoop(() => {
     Logger.info(`Verity status: CPU: ${Game.cpu.bucket}`, 'system');
 
     if (Memory.tickets == null) { Memory.tickets = []; }
+    if (Memory.clear == true) {
+        Logger.info('Clearing memory', 'System');
+        Memory.clear = false;
+        Memory.tickets = [];
+        for (const room in Memory.rooms) {
+            Memory.rooms[room].tickets = [];
+        }
+
+        for (const creep in Memory.creeps) {
+            Memory.creeps[creep].ticket = undefined;
+            Memory.creeps[creep].work = undefined;
+        }
+    }
 
     for (const name in Game.rooms) {
         const room = Game.rooms[name];
