@@ -61,7 +61,12 @@ export class RoomUpgradeTicketHelper {
                 creep.moveTo(source);
             }
         } else if (creep.memory.work == 'upgrading') {
-            if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+            const code = creep.upgradeController(creep.room.controller);
+            if (code == OK && !creep.room.controller.sign) {
+                if (creep.signController(creep.room.controller, "Conquered by Verity under command of queens ~Xunafay & Amokami~") == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(creep.room.controller);
+                }
+            } else if (code == ERR_NOT_IN_RANGE) {
                 creep.moveTo(creep.room.controller);
             }
         }
