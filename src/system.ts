@@ -1,4 +1,4 @@
-import {} from './main';
+import {} from 'main';
 
 export class System {
     static getPid(): number {

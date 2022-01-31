@@ -6,7 +6,9 @@ export interface HarvestTicket extends Ticket {
     type: 'harvester',
     source: string,
     container?: string,
-    reserved: number,
+    reserved: {
+        [key: string]: number
+    },
 }
 
 export class HarvestTicketHelper {
@@ -20,7 +22,7 @@ export class HarvestTicketHelper {
             source: source,
             container: container,
             type: 'harvester',
-            reserved: 0,
+            reserved: {},
         }
 
         room.memory.tickets.push(ticket);

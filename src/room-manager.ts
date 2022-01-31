@@ -16,10 +16,10 @@ export class RoomManager {
 
     createTickets(): void {
         this.createHarvestTickets();
-        this.createSpawnTickets();
         this.createUpgradeTickets();
-        this.createConstructionTickets();
         this.createHaulingTickets();
+        this.createConstructionTickets();
+        this.createSpawnTickets();
     }
 
     assignTickets(): void {
@@ -68,7 +68,7 @@ export class RoomManager {
     private createSpawnTickets(): void {
         let creepCount = this.room.find(FIND_MY_CREEPS).length;
         creepCount += this.room.memory.tickets.filter(t => t.type == 'spawnCreeps').length;
-        if (creepCount < ((this.room.controller?.level || 1) * 2) + 1) {
+        if (creepCount < ((this.room.controller?.level || 1) * 2) + 3) {
             RoomSpawnTicketHelper.create(this.room);
         }
     }
@@ -116,7 +116,7 @@ export class RoomManager {
 
     private createHaulingTickets(): void {
         const structures = (this.room.find(FIND_MY_STRUCTURES)
-            .filter(s => s.structureType == STRUCTURE_EXTENSION || s.structureType == STRUCTURE_SPAWN) as Array<StructureExtension | StructureSpawn>)
+            .filter(s => s.structureType == STRUCTURE_EXTENSION || s.structureType == STRUCTURE_SPAWN || s.structureType == STRUCTURE_TOWER) as Array<StructureExtension | StructureSpawn>)
             .filter((s) => s.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
 
         for (const structure of structures) {

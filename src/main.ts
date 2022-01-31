@@ -1,7 +1,7 @@
 import { ErrorMapper } from "utils/ErrorMapper";
-import { System } from './system';
-import { Ticket } from './tickets/base';
-import { RoomManager } from './room-manager';
+import { System } from 'system';
+import { Ticket } from 'tickets/base';
+import { RoomManager } from 'room-manager';
 import { Logger } from "utils/logger";
 
 declare global {
@@ -42,7 +42,7 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-    Logger.info(`Verity status: CPU: ${Game.cpu.bucket}`, 'system');
+    Logger.info(`Verity status: CPU(${Game.cpu.bucket})`, 'system');
 
     if (Memory.tickets == null) { Memory.tickets = []; }
     if (Memory.clear == true) {
@@ -72,5 +72,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     if (Game.cpu.bucket == 10000) {
         Game.cpu.generatePixel();
+        Logger.notice('Generated pixel', 'System');
     }
 });

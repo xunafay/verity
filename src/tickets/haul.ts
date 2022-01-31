@@ -1,6 +1,7 @@
 import { System } from "../system";
 import { Ticket } from "./base";
 import { HarvestTicket } from "./harvest";
+import { HarvestingSite } from '../utils/static-harvesting';
 
 export type Container = StructureContainer | StructureStorage | StructureSpawn | StructureExtension | StructureTower;
 
@@ -42,55 +43,31 @@ export class HaulerTicketHelper {
 
         // do task
         if (creep.memory.work == 'collecting') {
-            let to_pickup = creep.store.getFreeCapacity();
             let harvesting_tickets = creep.room.memory.tickets.filter(t => t.type == 'harvester') as Array<HarvestTicket>;
-            let source = harvesting_tickets.map(ticket => {
+            let reservation = harvesting_tickets.find(t => t.reserved[creep.name] != null);
+            if (!reservation) {
+                let sites = harvesting_tickets.map(t => new HarvestingSite(t));
+                let site = sites
+                    .filter(s => s.reservationAvailable(creep.store.getFreeCapacity()))
+                    .filter(s => s.distance(creep) != null)
+                    .sort((a, b) => a.distance(creep)! - b.distance(creep)!)
+                    .shift()
 
-                // lots of distance calculation
-                if (ticket.container == null) {
-                    let assigned_creep = ticket.assignees[0];
-                    if (assigned_creep) {
-                        return {
-                            ticket,
-                            distance: creep.pos.findPathTo(Game.creeps[assigned_creep]).length,
-                            target: assigned_creep,
-                        };
-                    } else {
-                        return {
-                            ticket,
-                            distance: null,
-                            target: null,
-                        };
-                    }
-                } else {
-                    let container = Game.getObjectById(ticket.container) as StructureContainer | null;
-                    if (container) {
-                        return {
-                            ticket,
-                            distance: creep.pos.findPathTo(container).length,
-                            target: container,
-                        };
-                    } else {
-                        return {
-                            ticket,
-                            distance: null,
-                            target: null,
-                        };
-                    }
+                if (site) {
+                    site.reserve(creep);
+                    reservation = site.ticket;
                 }
-            })
-                .filter(s => s.distance != null && s.target != null)
-                .sort((a, b) => a.distance! - b.distance!)
-                .shift();
+            }
 
-            if (source) {
-                if (typeof(source.target) == 'string') {
-                    if (Game.creeps[source.target].transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(Game.creeps[source.target]);
+            if (reservation) {
+                let site = new HarvestingSite(reservation);
+                if (site.container) {
+                    if (creep.withdraw(site.container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(site.container);
                     }
-                } else {
-                    if (creep.withdraw(source.target as StructureContainer, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source.target as StructureContainer);
+                } else if (site.creep) {
+                    if (site.creep.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(site.creep);
                     }
                 }
             }
