@@ -32,6 +32,17 @@ export class HarvestTicketHelper {
     static run(creep: Creep, room: Room, ticket: HarvestTicket) {
         let source = Game.getObjectById(ticket.source) as Source;
 
+        if (Game.time % 10 == 0 && !ticket.container) {
+            const container = creep.room.find(FIND_STRUCTURES)
+            .filter(structure => structure.structureType == STRUCTURE_CONTAINER && structure.pos.inRangeTo(source.pos, 3))
+            .shift() as StructureContainer | undefined;
+
+            if (container) {
+                ticket.container = container.id;
+                Logger.notice('Container found for harvester ticket', 'HarvestTicketHelper');
+            }
+        }
+
         if (creep.store.getFreeCapacity() == 0) {
             if (ticket.container) {
                 const container =  Game.getObjectById(ticket.container) as StructureContainer;
