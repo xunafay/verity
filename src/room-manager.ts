@@ -5,6 +5,7 @@ import { RoomUpgradeTicket, RoomUpgradeTicketHelper } from "tickets/upgrade";
 import { RoomSpawnTicket } from "tickets/spawn-creeps";
 import { HaulerTicket, HaulerTicketHelper } from "tickets/haul";
 import { Logger } from "utils/logger";
+import { HarvestTicket, HarvestTicketHelper } from "tickets/harvest";
 
 export class RoomManager {
     constructor(public room: Room) {
@@ -14,9 +15,10 @@ export class RoomManager {
     }
 
     createTickets(): void {
+        this.createHarvestTickets();
         this.createSpawnTickets();
-        this.createConstructionTickets();
         this.createUpgradeTickets();
+        this.createConstructionTickets();
         this.createHaulingTickets();
     }
 
@@ -43,8 +45,10 @@ export class RoomManager {
                     RoomUpgradeTicketHelper.run(creep);
                 } else if (ticket && ticket.type == 'build') {
                     BuildTicketHelper.run(ticket as BuildTicket, creep);
-                } else if (ticket && ticket.type == 'haul') {
+                } else if (ticket && ticket.type == 'hauler') {
                     HaulerTicketHelper.run(ticket as HaulerTicket, creep);
+                } else if (ticket && ticket.type == 'harvester') {
+                    HarvestTicketHelper.run( creep, this.room, ticket as HarvestTicket);
                 } else {
                     Logger.warning(`creep(${creep.name}) had non existing ticket(${creep.memory.ticket})`, 'TicketExecutor');
                     creep.memory.ticket = undefined;
@@ -96,6 +100,20 @@ export class RoomManager {
         }
     }
 
+    private createHarvestTickets(): void {
+        const sources = this.room.find(FIND_SOURCES);
+        const tickets: Array<HarvestTicket> = this.room.memory.tickets.filter(ticket => ticket.type == 'harvester') as Array<HarvestTicket>;
+        for (const source of sources) {
+            if (!tickets.some(ticket => ticket.source == source.id)) {
+                Logger.debug(`creating harvest ticket for ${source.id}`, 'RoomManager');
+                const container = this.room.find(FIND_STRUCTURES)
+                    .filter(structure => structure.structureType == STRUCTURE_CONTAINER && structure.pos.inRangeTo(source.pos, 3))
+                    .shift(); // get first or undefined
+                HarvestTicketHelper.create(this.room, 1, source.id, container?.id);
+            }
+        }
+    }
+
     private createHaulingTickets(): void {
         const structures = (this.room.find(FIND_MY_STRUCTURES)
             .filter(s => s.structureType == STRUCTURE_EXTENSION || s.structureType == STRUCTURE_SPAWN) as Array<StructureExtension | StructureSpawn>)
@@ -103,7 +121,7 @@ export class RoomManager {
 
         for (const structure of structures) {
             const ticketExists = this.room.memory.tickets
-                .some(ticket => ticket.type == 'haul' && (ticket as HaulerTicket).target == structure.id);
+                .some(ticket => ticket.type == 'hauler' && (ticket as HaulerTicket).target == structure.id);
             if (!ticketExists) {
                 HaulerTicketHelper.create(this.room, structure.id, Math.max(1, Math.floor(structure.store.getFreeCapacity(RESOURCE_ENERGY) / 50)));
             }

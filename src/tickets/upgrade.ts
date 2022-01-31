@@ -21,7 +21,7 @@ export class RoomUpgradeTicketHelper {
 
         let ticket: RoomUpgradeTicket = {
             assignees: [],
-            maxAssignees: targetLevel,
+            maxAssignees: targetLevel + 1,
             pid: System.getPid(),
             requestor: room.name,
             requirements: [WORK, CARRY, MOVE],
