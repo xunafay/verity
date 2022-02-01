@@ -62,12 +62,18 @@ export class HaulerTicketHelper {
             if (reservation) {
                 let site = new HarvestingSite(reservation);
                 if (site.container) {
-                    if (creep.withdraw(site.container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    const code = creep.withdraw(site.container, RESOURCE_ENERGY);
+                    if (code == ERR_NOT_IN_RANGE) {
                         creep.moveTo(site.container);
+                    } else if (code == OK) {
+                        site.release(creep);
                     }
                 } else if (site.creep) {
-                    if (site.creep.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    const code = site.creep.transfer(creep, RESOURCE_ENERGY);
+                    if (code == ERR_NOT_IN_RANGE) {
                         creep.moveTo(site.creep);
+                    } else if (code == OK) {
+                        site.release(creep);
                     }
                 }
             }
