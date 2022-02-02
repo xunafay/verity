@@ -42,11 +42,11 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-    Logger.info(`Verity status: CPU(${Game.cpu.bucket})`, 'system');
+    // Logger.debug(`Verity status: CPU(${Game.cpu.bucket})`, 'system');
 
     if (Memory.tickets == null) { Memory.tickets = []; }
     if (Memory.clear == true) {
-        Logger.info('Clearing memory', 'System');
+        Logger.notice('Clearing memory', 'System');
         Memory.clear = false;
         Memory.tickets = [];
         for (const room in Memory.rooms) {

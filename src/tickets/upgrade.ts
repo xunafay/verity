@@ -31,6 +31,7 @@ export class RoomUpgradeTicketHelper {
             type: 'upgrade'
         };
 
+        Logger.debug(`Created upgrade ticket(${ticket.pid})`, 'UpgradeTicketHelper');
         room.memory.tickets.push(ticket);
 
         return ticket
@@ -59,34 +60,7 @@ export class RoomUpgradeTicketHelper {
 
         // do task
         if (creep.memory.work == 'harvesting') {
-            let harvesting_tickets = creep.room.memory.tickets.filter(t => t.type == 'harvester') as Array<HarvestTicket>;
-            let reservation = harvesting_tickets.find(t => t.reserved[creep.name] != null);
-            if (!reservation) {
-                let sites = harvesting_tickets.map(t => new HarvestingSite(t));
-                let site = sites
-                    .filter(s => s.reservationAvailable(creep.store.getFreeCapacity()))
-                    .filter(s => s.distance(creep) != null)
-                    .sort((a, b) => a.distance(creep)! - b.distance(creep)!)
-                    .shift()
-
-                if (site) {
-                    site.reserve(creep);
-                    reservation = site.ticket;
-                }
-            }
-
-            if (reservation) {
-                let site = new HarvestingSite(reservation);
-                if (site.container) {
-                    if (creep.withdraw(site.container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(site.container);
-                    }
-                } else if (site.creep) {
-                    if (site.creep.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(site.creep);
-                    }
-                }
-            }
+            StaticHarvesting.collect(creep, creep.room);
         } else if (creep.memory.work == 'upgrading') {
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(creep.room.controller);

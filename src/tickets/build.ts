@@ -1,7 +1,7 @@
-import { HarvestingSite } from "utils/static-harvesting";
+import { Logger } from "utils/logger";
+import { StaticHarvesting } from "utils/static-harvesting";
 import { System } from "../system";
 import { Ticket } from "./base";
-import { HarvestTicket } from "./harvest";
 
 export interface BuildTicket extends Ticket {
     id: string,
@@ -20,6 +20,7 @@ export class BuildTicketHelper {
             requirements: [WORK, CARRY, MOVE],
         };
 
+        Logger.debug(`Created build ticket(${ticket.pid})`, 'BuildTicketHelper');
         room.memory.tickets.push(ticket);
         return ticket;
     }
@@ -38,34 +39,7 @@ export class BuildTicketHelper {
 
         // do task
         if (creep.memory.work == 'harvesting') {
-            let harvesting_tickets = creep.room.memory.tickets.filter(t => t.type == 'harvester') as Array<HarvestTicket>;
-            let reservation = harvesting_tickets.find(t => t.reserved[creep.name] != null);
-            if (!reservation) {
-                let sites = harvesting_tickets.map(t => new HarvestingSite(t));
-                let site = sites
-                    .filter(s => s.reservationAvailable(creep.store.getFreeCapacity()))
-                    .filter(s => s.distance(creep) != null)
-                    .sort((a, b) => a.distance(creep)! - b.distance(creep)!)
-                    .shift()
-
-                if (site) {
-                    site.reserve(creep);
-                    reservation = site.ticket;
-                }
-            }
-
-            if (reservation) {
-                let site = new HarvestingSite(reservation);
-                if (site.container) {
-                    if (creep.withdraw(site.container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(site.container);
-                    }
-                } else if (site.creep) {
-                    if (site.creep.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(site.creep);
-                    }
-                }
-            }
+            StaticHarvesting.collect(creep, creep.room);
         } else if (creep.memory.work == 'building') {
             // find construction site from id in ticket
             const site = Game.getObjectById(ticket.id) as ConstructionSite;

@@ -9,6 +9,7 @@ export interface HarvestTicket extends Ticket {
     reserved: {
         [key: string]: number
     },
+    reservations_locked: number, // store does not update until next tick, thus we lock reservations after withdrawal for 1 tick
 }
 
 export class HarvestTicketHelper {
@@ -23,6 +24,7 @@ export class HarvestTicketHelper {
             container: container,
             type: 'harvester',
             reserved: {},
+            reservations_locked: 0,
         }
 
         room.memory.tickets.push(ticket);

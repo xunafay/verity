@@ -1,7 +1,8 @@
 import { System } from "../system";
 import { Ticket } from "./base";
 import { HarvestTicket } from "./harvest";
-import { HarvestingSite } from '../utils/static-harvesting';
+import { HarvestingSite, StaticHarvesting } from '../utils/static-harvesting';
+import { Logger } from "utils/logger";
 
 export type Container = StructureContainer | StructureStorage | StructureSpawn | StructureExtension | StructureTower;
 
@@ -21,6 +22,8 @@ export class HaulerTicketHelper {
             target: target,
             type: 'hauler'
         }
+
+        Logger.debug(`Created hauler ticket(${ticket.pid})`, 'HaulerTicketHelper');
         room.memory.tickets.push(ticket);
         return ticket;
     }
@@ -43,40 +46,7 @@ export class HaulerTicketHelper {
 
         // do task
         if (creep.memory.work == 'collecting') {
-            let harvesting_tickets = creep.room.memory.tickets.filter(t => t.type == 'harvester') as Array<HarvestTicket>;
-            let reservation = harvesting_tickets.find(t => t.reserved[creep.name] != null);
-            if (!reservation) {
-                let sites = harvesting_tickets.map(t => new HarvestingSite(t));
-                let site = sites
-                    .filter(s => s.reservationAvailable(creep.store.getFreeCapacity()))
-                    .filter(s => s.distance(creep) != null)
-                    .sort((a, b) => a.distance(creep)! - b.distance(creep)!)
-                    .shift()
-
-                if (site) {
-                    site.reserve(creep);
-                    reservation = site.ticket;
-                }
-            }
-
-            if (reservation) {
-                let site = new HarvestingSite(reservation);
-                if (site.container) {
-                    const code = creep.withdraw(site.container, RESOURCE_ENERGY);
-                    if (code == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(site.container);
-                    } else if (code == OK) {
-                        site.release(creep);
-                    }
-                } else if (site.creep) {
-                    const code = site.creep.transfer(creep, RESOURCE_ENERGY);
-                    if (code == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(site.creep);
-                    } else if (code == OK) {
-                        site.release(creep);
-                    }
-                }
-            }
+            StaticHarvesting.collect(creep, creep.room);
         } else if (creep.memory.work == 'dropping') {
             const target = Game.getObjectById(ticket.target) as Container;
 
