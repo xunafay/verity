@@ -49,7 +49,9 @@ export class HarvestTicketHelper {
             if (ticket.container) {
                 const container =  Game.getObjectById(ticket.container) as StructureContainer;
                 if (container) {
-                    creep.transfer(container, RESOURCE_ENERGY, creep.store.getUsedCapacity());
+                     if (creep.transfer(container, RESOURCE_ENERGY, creep.store.getUsedCapacity()) == ERR_NOT_IN_RANGE) {
+                         creep.moveTo(container);
+                     }
                 } else {
                     Logger.error(`No container present for harvester(${creep.id}) with ticket(${ticket.pid})`, 'HarvestTicketHelper');
                 }
