@@ -1,8 +1,7 @@
 import { Logger } from "utils/logger";
-import { HarvestingSite } from "utils/static-harvesting";
+import { StaticHarvesting } from "utils/static-harvesting";
 import { System } from "../system";
 import { Ticket } from "./base";
-import { HarvestTicket } from "./harvest";
 
 export interface RoomUpgradeTicket extends Ticket {
     type: 'upgrade',
@@ -23,7 +22,7 @@ export class RoomUpgradeTicketHelper {
 
         let ticket: RoomUpgradeTicket = {
             assignees: [],
-            maxAssignees: targetLevel,
+            maxAssignees: 2,
             pid: System.getPid(),
             requestor: room.name,
             requirements: [WORK, CARRY, MOVE],

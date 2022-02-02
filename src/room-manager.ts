@@ -17,8 +17,8 @@ export class RoomManager {
     createTickets(): void {
         this.createHarvestTickets();
         this.createUpgradeTickets();
-        this.createHaulingTickets();
         this.createConstructionTickets();
+        this.createHaulingTickets();
         this.createSpawnTickets();
     }
 
