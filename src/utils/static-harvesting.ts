@@ -29,8 +29,8 @@ export class HarvestingSite {
         let distance = null;
         if (this.container) {
             distance = creep.pos.findPathTo(this.container).length;
-        } else if (this.creep) {
-            distance = creep.pos.findPathTo(this.creep).length;
+        } else {
+            distance = creep.pos.findPathTo(Game.getObjectById(this.ticket.source) as Source).length;
         }
 
         this._distance = distance;
@@ -43,6 +43,10 @@ export class HarvestingSite {
             return false;
         }
 
+        if (!this.container) {
+            return true; // TODO: only return true if their are slots available to mine
+        }
+
         let reserved = 0;
         for (const creep in this.ticket.reserved) {
             reserved += this.ticket.reserved[creep];
@@ -51,8 +55,6 @@ export class HarvestingSite {
         let available = 0;
         if (this.container) {
             available = this.container.store.getUsedCapacity() - reserved;
-        } else if (this.creep) {
-            available = this.creep.store.getUsedCapacity() - reserved;
         } else {
             return false;
         }
@@ -94,17 +96,18 @@ export class StaticHarvesting {
                 let site = new HarvestingSite(reservation);
                 if (site.container) {
                     const code = creep.withdraw(site.container, RESOURCE_ENERGY);
-                    Logger.debug('Code after withdraw: ' + code, 'HaulerHelper');
                     if (code == ERR_NOT_IN_RANGE) {
                         creep.moveTo(site.container);
                     } else if (code == OK) {
                         site.release(creep);
                     }
-                } else if (site.creep) {
-                    const code = site.creep.transfer(creep, RESOURCE_ENERGY);
-                    if (code == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(site.creep);
-                    } else if (code == OK) {
+                } else {
+                    const source = Game.getObjectById(site.ticket.source) as Source;
+                    if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source);
+                    }
+
+                    if (creep.store.getFreeCapacity() == 0) {
                         site.release(creep);
                     }
                 }

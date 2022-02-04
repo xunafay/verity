@@ -16,7 +16,7 @@ export class HarvestTicketHelper {
     static create(room: Room, maxAssignees: number, source: string, container?: string): HarvestTicket {
         let ticket: HarvestTicket = {
             assignees: [],
-            maxAssignees: maxAssignees,
+            maxAssignees: container == null ? 0 : 1,
             pid: System.getPid(),
             requestor: room.name,
             requirements: [WORK, CARRY, MOVE],
@@ -41,6 +41,7 @@ export class HarvestTicketHelper {
 
             if (container) {
                 ticket.container = container.id;
+                ticket.maxAssignees = 1;
                 Logger.notice('Container found for harvester ticket', 'HarvestTicketHelper');
             }
         }
