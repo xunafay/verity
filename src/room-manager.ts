@@ -20,6 +20,25 @@ export class RoomManager {
         this.createConstructionTickets();
         this.createHaulingTickets();
         this.createSpawnTickets();
+
+        this.doTowerStuff();
+    }
+
+    doTowerStuff(): void {
+        for (const tower of this.room.find(FIND_MY_STRUCTURES).filter(structure => structure.structureType == STRUCTURE_TOWER) as StructureTower[]) {
+            if (tower.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+                // find walls and ramparts that are not fully repaired
+                const walls = this.room.find(FIND_STRUCTURES)
+                    .filter(structure => structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART || structure.structureType == STRUCTURE_CONTAINER || structure.structureType == STRUCTURE_ROAD)
+                    .filter(structure => structure.hits < structure.hitsMax)
+                    .sort((a, b) => (a.hits / a.hitsMax) - (b.hits / b.hitsMax)) as (StructureWall | StructureRampart | StructureContainer | StructureRoad)[];
+
+                let wall = walls.shift();
+                if (wall) {
+                    tower.repair(wall);
+                }
+            }
+        }
     }
 
     assignTickets(): void {
